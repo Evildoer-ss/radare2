@@ -800,6 +800,9 @@ R_API int r_main_radare2(int argc, const char **argv) {
 		r_core_loadlibs (r, R_CORE_LOADLIBS_ALL, NULL);
 	}
 	ret = run_commands (r, NULL, prefiles, false, do_analysis);
+
+	printf("do analysis 1\n");
+
 	r_list_free (prefiles);
 	prefiles = NULL;
 
@@ -1336,6 +1339,7 @@ R_API int r_main_radare2(int argc, const char **argv) {
 		}
 		free (s);
 	}
+	printf("do analysis 2\n");
 	if (do_analysis > 0) {
 		switch (do_analysis) {
 		case 1: r_core_cmd0 (r, "aa"); break;
