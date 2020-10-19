@@ -62,7 +62,7 @@ if [ "$1" != "--without-pull" ]; then
 		git branch | grep "^\* master" > /dev/null
 		if [ $? = 0 ]; then
 			echo "WARNING: Updating from remote repository"
-			git pull
+			# git pull
 		fi
 	fi
 else

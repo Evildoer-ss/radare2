@@ -801,8 +801,6 @@ R_API int r_main_radare2(int argc, const char **argv) {
 	}
 	ret = run_commands (r, NULL, prefiles, false, do_analysis);
 
-	printf("do analysis 1\n");
-
 	r_list_free (prefiles);
 	prefiles = NULL;
 
@@ -1106,7 +1104,9 @@ R_API int r_main_radare2(int argc, const char **argv) {
 							}
 							/* Load rbin info from r2 dbg:// or r2 /bin/ls */
 							/* the baddr should be set manually here */
+							printf("begin open\n");
 							(void)r_core_bin_load (r, filepath, baddr);
+							printf("begin end\n");
 							// check if bin info is loaded and complain if -B was used
 							RBinFile *bi = r_bin_cur (r->bin);
 							bool haveBinInfo = bi && bi->o && bi->o->info && bi->o->info->type;
@@ -1122,6 +1122,7 @@ R_API int r_main_radare2(int argc, const char **argv) {
 					}
 				}
 			} else {
+				printf("case else\n");
 				const char *prj = r_config_get (r->config, "prj.name");
 				if (prj && *prj) {
 					pfile = r_core_project_info (r, prj);
@@ -1339,7 +1340,6 @@ R_API int r_main_radare2(int argc, const char **argv) {
 		}
 		free (s);
 	}
-	printf("do analysis 2\n");
 	if (do_analysis > 0) {
 		switch (do_analysis) {
 		case 1: r_core_cmd0 (r, "aa"); break;

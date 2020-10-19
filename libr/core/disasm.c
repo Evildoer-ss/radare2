@@ -6004,7 +6004,9 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 		} else if (i >= nb_bytes) {
 			break;
 		}
+		# if 0
 		memset (&asmop, 0, sizeof (RAsmOp));
+		// todo
 		ret = r_asm_disassemble (core->rasm, &asmop, buf + i, nb_bytes - i);
 		if (ret < 1) {
 			char *hex = r_asm_op_get_hex (&asmop);
@@ -6027,6 +6029,7 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 
 		ds->has_description = false;
 		r_anal_op_fini (&ds->analop);
+		// todo
 		r_anal_op (core->anal, &ds->analop, at, buf + i, nb_bytes - i, R_ANAL_OP_MASK_ALL);
 
 		if (ds->pseudo) {
@@ -6080,9 +6083,10 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 				free (buf);
 			}
 		}
-
+		# endif
 		pj_o (pj);
 		pj_kn (pj, "offset", at);
+		# if 0
 		if (ds->analop.ptr != UT64_MAX) {
 			pj_kn (pj, "ptr", ds->analop.ptr);
 		}
@@ -6159,6 +6163,8 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 				free (b64comment);
 			}
 		}
+		# endif
+		// pj_o (pj);
 		/* add refs */
 		{
 			RAnalRef *ref;

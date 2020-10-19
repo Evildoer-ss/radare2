@@ -449,12 +449,12 @@ static void _print_strings(RCore *r, RList *list, int mode, int va) {
 			int *block_list;
 			pj_o (pj);
 			pj_kn (pj, "vaddr", vaddr);
-			pj_kn (pj, "paddr", paddr);
-			pj_kn (pj, "ordinal", string->ordinal);
-			pj_kn (pj, "size", string->size);
-			pj_kn (pj, "length", string->length);
-			pj_ks (pj, "section", section_name);
-			pj_ks (pj, "type", type_string);
+			// pj_kn (pj, "paddr", paddr);
+			// pj_kn (pj, "ordinal", string->ordinal);
+			// pj_kn (pj, "size", string->size);
+			// pj_kn (pj, "length", string->length);
+			// pj_ks (pj, "section", section_name);
+			// pj_ks (pj, "type", type_string);
 			pj_ks (pj, "string", string->string);
 			switch (string->type) {
 			case R_STRING_TYPE_UTF8:

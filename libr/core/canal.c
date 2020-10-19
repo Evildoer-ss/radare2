@@ -1615,7 +1615,7 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                         ut8 *buf = malloc (bbi->size);
                         pj_o (pj);
                         pj_kn (pj, "offset", bbi->addr);
-                        pj_kn (pj, "size", bbi->size);
+                        // pj_kn (pj, "size", bbi->size);
                         if (bbi->jump != UT64_MAX) {
                                 pj_kn (pj, "jump", bbi->jump);
                         }
@@ -1645,13 +1645,13 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                                 pj_end (pj);
                         }
                         if (t) {
-                                pj_k (pj, "trace");
-                                pj_o (pj);
-                                pj_ki (pj, "count", t->count);
-                                pj_ki (pj, "times", t->times);
-                                pj_end (pj);
+                                // pj_k (pj, "trace");
+                                // pj_o (pj);
+                                // pj_ki (pj, "count", t->count);
+                                // pj_ki (pj, "times", t->times);
+                                // pj_end (pj);
                         }
-                        pj_kn (pj, "colorize", bbi->colorize);
+                        // pj_kn (pj, "colorize", bbi->colorize);
                         pj_k (pj, "ops");
                         pj_a (pj);
                         if (buf) {
@@ -1669,6 +1669,7 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                         pj_end (pj);
                         continue;
                 }
+				# if 0
                 if ((str = core_anal_graph_label (core, bbi, opts))) {
                         if (opts & R_CORE_ANAL_GRAPHDIFF) {
                                 const char *difftype = bbi->diff? (\
@@ -1815,6 +1816,7 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                         }
                         free (str);
                 }
+				# endif
         }
         return nodes;
 }
@@ -1860,18 +1862,18 @@ static int core_anal_graph_nodes(RCore *core, RAnalFunction *fcn, int opts, PJ *
 		pj_ks (pj, "name", r_str_get (fcn_name_escaped));
 		free (fcn_name_escaped);
 		pj_kn (pj, "offset", fcn->addr);
-		pj_ki (pj, "ninstr", fcn->ninstr);
-		pj_ki (pj, "nargs",
-			r_anal_var_count (core->anal, fcn, 'r', 1) +
-			r_anal_var_count (core->anal, fcn, 's', 1) +
-			r_anal_var_count (core->anal, fcn, 'b', 1));
-		pj_ki (pj, "nlocals",
-			r_anal_var_count (core->anal, fcn, 'r', 0) +
-			r_anal_var_count (core->anal, fcn, 's', 0) +
-			r_anal_var_count (core->anal, fcn, 'b', 0));
-		pj_kn (pj, "size", r_anal_function_linear_size (fcn));
-		pj_ki (pj, "stack", fcn->maxstack);
-		pj_ks (pj, "type", r_anal_fcntype_tostring (fcn->type));
+		// pj_ki (pj, "ninstr", fcn->ninstr);
+		// pj_ki (pj, "nargs",
+		// 	r_anal_var_count (core->anal, fcn, 'r', 1) +
+		// 	r_anal_var_count (core->anal, fcn, 's', 1) +
+		// 	r_anal_var_count (core->anal, fcn, 'b', 1));
+		// pj_ki (pj, "nlocals",
+		// 	r_anal_var_count (core->anal, fcn, 'r', 0) +
+		// 	r_anal_var_count (core->anal, fcn, 's', 0) +
+		// 	r_anal_var_count (core->anal, fcn, 'b', 0));
+		// pj_kn (pj, "size", r_anal_function_linear_size (fcn));
+		// pj_ki (pj, "stack", fcn->maxstack);
+		// pj_ks (pj, "type", r_anal_fcntype_tostring (fcn->type));
 		pj_k (pj, "blocks");
 		pj_a (pj);
 	}
@@ -2847,7 +2849,6 @@ static int fcn_print_makestyle(RCore *core, RList *fcns, char mode) {
 	}
 	return 0;
 }
-
 static int fcn_print_json(RCore *core, RAnalFunction *fcn, PJ *pj) {
 	RListIter *iter;
 	RAnalRef *refi;
@@ -2856,130 +2857,131 @@ static int fcn_print_json(RCore *core, RAnalFunction *fcn, PJ *pj) {
 		return -1;
 	}
 	int ebbs = 0;
-	pj_o (pj);
-	pj_kn (pj, "offset", fcn->addr);
+	
 	char *name = r_core_anal_fcn_name (core, fcn);
-	if (name) {
+	if (name && strstr(name, "method.") == name) {
+		pj_o (pj);
+		pj_kn (pj, "offset", fcn->addr);
 		pj_ks (pj, "name", name);
-	}
-	pj_kn (pj, "size", r_anal_function_linear_size (fcn));
-	pj_ks (pj, "is-pure", r_str_bool (r_anal_function_purity (fcn)));
-	pj_kn (pj, "realsz", r_anal_function_realsize (fcn));
-	pj_kb (pj, "noreturn", fcn->is_noreturn);
-	pj_ki (pj, "stackframe", fcn->maxstack);
-	if (fcn->cc) {
-		pj_ks (pj, "calltype", fcn->cc); // calling conventions
-	}
-	pj_ki (pj, "cost", r_anal_function_cost (fcn)); // execution cost
-	pj_ki (pj, "cc", r_anal_function_complexity (fcn)); // cyclic cost
-	pj_ki (pj, "bits", fcn->bits);
-	pj_ks (pj, "type", r_anal_fcntype_tostring (fcn->type));
-	pj_ki (pj, "nbbs", r_list_length (fcn->bbs));
-	pj_ki (pj, "edges", r_anal_function_count_edges (fcn, &ebbs));
-	pj_ki (pj, "ebbs", ebbs);
-	{
-		char *sig = r_core_cmd_strf (core, "afcf @ 0x%"PFMT64x, fcn->addr);
-		if (sig) {
-			r_str_trim (sig);
-			pj_ks (pj, "signature", sig);
-			free (sig);
-		}
-
-	}
-	pj_kn (pj, "minbound", r_anal_function_min_addr (fcn));
-	pj_kn (pj, "maxbound", r_anal_function_max_addr (fcn));
-
-	int outdegree = 0;
-	refs = r_anal_function_get_refs (fcn);
-	if (!r_list_empty (refs)) {
-		pj_k (pj, "callrefs");
-		pj_a (pj);
-		r_list_foreach (refs, iter, refi) {
-			if (refi->type == R_ANAL_REF_TYPE_CALL) {
-				outdegree++;
-			}
-			if (refi->type == R_ANAL_REF_TYPE_CODE ||
-				refi->type == R_ANAL_REF_TYPE_CALL) {
-				pj_o (pj);
-				pj_kn (pj, "addr", refi->addr);
-				pj_ks (pj, "type", r_anal_xrefs_type_tostring (refi->type));
-				pj_kn (pj, "at", refi->at);
-				pj_end (pj);
-			}
-		}
-		pj_end (pj);
-
-		pj_k (pj, "datarefs");
-		pj_a (pj);
-		r_list_foreach (refs, iter, refi) {
-			if (refi->type == R_ANAL_REF_TYPE_DATA) {
-				pj_n (pj, refi->addr);
-			}
-		}
 		pj_end (pj);
 	}
-	r_list_free (refs);
-
-	int indegree = 0;
-	xrefs = r_anal_function_get_xrefs (fcn);
-	if (!r_list_empty (xrefs)) {
-		pj_k (pj, "codexrefs");
-		pj_a (pj);
-		r_list_foreach (xrefs, iter, refi) {
-			if (refi->type == R_ANAL_REF_TYPE_CODE ||
-				refi->type == R_ANAL_REF_TYPE_CALL) {
-				indegree++;
-				pj_o (pj);
-				pj_kn (pj, "addr", refi->addr);
-				pj_ks (pj, "type", r_anal_xrefs_type_tostring (refi->type));
-				pj_kn (pj, "at", refi->at);
-				pj_end (pj);
-			}
-		}
-
-		pj_end (pj);
-		pj_k (pj, "dataxrefs");
-		pj_a (pj);
-
-		r_list_foreach (xrefs, iter, refi) {
-			if (refi->type == R_ANAL_REF_TYPE_DATA) {
-				pj_n (pj, refi->addr);
-			}
-		}
-		pj_end (pj);
-	}
-	r_list_free (xrefs);
-
-	pj_ki (pj, "indegree", indegree);
-	pj_ki (pj, "outdegree", outdegree);
-
-	if (fcn->type == R_ANAL_FCN_TYPE_FCN || fcn->type == R_ANAL_FCN_TYPE_SYM) {
-		pj_ki (pj, "nlocals", r_anal_var_count (core->anal, fcn, 'b', 0) +
-				r_anal_var_count (core->anal, fcn, 'r', 0) +
-				r_anal_var_count (core->anal, fcn, 's', 0));
-		pj_ki (pj, "nargs", r_anal_var_count (core->anal, fcn, 'b', 1) +
-				r_anal_var_count (core->anal, fcn, 'r', 1) +
-				r_anal_var_count (core->anal, fcn, 's', 1));
-
-		pj_k (pj, "bpvars");
-		r_anal_var_list_show (core->anal, fcn, 'b', 'j', pj);
-		pj_k (pj, "spvars");
-		r_anal_var_list_show (core->anal, fcn, 's', 'j', pj);
-		pj_k (pj, "regvars");
-		r_anal_var_list_show (core->anal, fcn, 'r', 'j', pj);
-
-		pj_ks (pj, "difftype", fcn->diff->type == R_ANAL_DIFF_TYPE_MATCH?"match":
-				fcn->diff->type == R_ANAL_DIFF_TYPE_UNMATCH?"unmatch":"new");
-		if (fcn->diff->addr != -1) {
-			pj_kn (pj, "diffaddr", fcn->diff->addr);
-		}
-		if (fcn->diff->name) {
-			pj_ks (pj, "diffname", fcn->diff->name);
-		}
-	}
-	pj_end (pj);
 	free (name);
 	return 0;
+	// pj_kn (pj, "size", r_anal_function_linear_size (fcn));
+	// pj_ks (pj, "is-pure", r_str_bool (r_anal_function_purity (fcn)));
+	// pj_kn (pj, "realsz", r_anal_function_realsize (fcn));
+	// pj_kb (pj, "noreturn", fcn->is_noreturn);
+	// pj_ki (pj, "stackframe", fcn->maxstack);
+	// if (fcn->cc) {
+	// 	pj_ks (pj, "calltype", fcn->cc); // calling conventions
+	// }
+	// pj_ki (pj, "cost", r_anal_function_cost (fcn)); // execution cost
+	// pj_ki (pj, "cc", r_anal_function_complexity (fcn)); // cyclic cost
+	// pj_ki (pj, "bits", fcn->bits);
+	// pj_ks (pj, "type", r_anal_fcntype_tostring (fcn->type));
+	// pj_ki (pj, "nbbs", r_list_length (fcn->bbs));
+	// pj_ki (pj, "edges", r_anal_function_count_edges (fcn, &ebbs));
+	// pj_ki (pj, "ebbs", ebbs);
+	// ssj signature~
+	// {
+	// 	char *sig = r_core_cmd_strf (core, "afcf @ 0x%"PFMT64x, fcn->addr);
+	// 	if (sig) {
+	// 		r_str_trim (sig);
+	// 		pj_ks (pj, "signature", sig);
+	// 		free (sig);
+	// 	}
+	// }
+	// pj_kn (pj, "minbound", r_anal_function_min_addr (fcn));
+	// pj_kn (pj, "maxbound", r_anal_function_max_addr (fcn));
+
+	// int outdegree = 0;
+	// refs = r_anal_function_get_refs (fcn);
+	// if (!r_list_empty (refs)) {
+	// 	pj_k (pj, "callrefs");
+	// 	pj_a (pj);
+	// 	r_list_foreach (refs, iter, refi) {
+	// 		if (refi->type == R_ANAL_REF_TYPE_CALL) {
+	// 			outdegree++;
+	// 		}
+	// 		if (refi->type == R_ANAL_REF_TYPE_CODE ||
+	// 			refi->type == R_ANAL_REF_TYPE_CALL) {
+	// 			pj_o (pj);
+	// 			pj_kn (pj, "addr", refi->addr);
+	// 			pj_ks (pj, "type", r_anal_xrefs_type_tostring (refi->type));
+	// 			pj_kn (pj, "at", refi->at);
+	// 			pj_end (pj);
+	// 		}
+	// 	}
+		// pj_end (pj);
+
+		// pj_k (pj, "datarefs");
+		// pj_a (pj);
+	// 	r_list_foreach (refs, iter, refi) {
+	// 		if (refi->type == R_ANAL_REF_TYPE_DATA) {
+	// 			pj_n (pj, refi->addr);
+	// 		}
+	// 	}
+		// pj_end (pj);
+	// }
+	// r_list_free (refs);
+
+	// int indegree = 0;
+	// xrefs = r_anal_function_get_xrefs (fcn);
+	// if (!r_list_empty (xrefs)) {
+	// 	pj_k (pj, "codexrefs");
+	// 	pj_a (pj);
+	// 	r_list_foreach (xrefs, iter, refi) {
+	// 		if (refi->type == R_ANAL_REF_TYPE_CODE ||
+	// 			refi->type == R_ANAL_REF_TYPE_CALL) {
+	// 			indegree++;
+	// 			pj_o (pj);
+	// 			pj_kn (pj, "addr", refi->addr);
+	// 			pj_ks (pj, "type", r_anal_xrefs_type_tostring (refi->type));
+	// 			pj_kn (pj, "at", refi->at);
+	// 			pj_end (pj);
+	// 		}
+	// 	}
+
+	// 	pj_end (pj);
+	// 	pj_k (pj, "dataxrefs");
+	// 	pj_a (pj);
+
+	// 	r_list_foreach (xrefs, iter, refi) {
+	// 		if (refi->type == R_ANAL_REF_TYPE_DATA) {
+	// 			pj_n (pj, refi->addr);
+	// 		}
+	// 	}
+	// 	pj_end (pj);
+	// }
+	// r_list_free (xrefs);
+
+	// pj_ki (pj, "indegree", indegree);
+	// pj_ki (pj, "outdegree", outdegree);
+
+	// if (fcn->type == R_ANAL_FCN_TYPE_FCN || fcn->type == R_ANAL_FCN_TYPE_SYM) {
+	// 	pj_ki (pj, "nlocals", r_anal_var_count (core->anal, fcn, 'b', 0) +
+	// 			r_anal_var_count (core->anal, fcn, 'r', 0) +
+	// 			r_anal_var_count (core->anal, fcn, 's', 0));
+	// 	pj_ki (pj, "nargs", r_anal_var_count (core->anal, fcn, 'b', 1) +
+	// 			r_anal_var_count (core->anal, fcn, 'r', 1) +
+	// 			r_anal_var_count (core->anal, fcn, 's', 1));
+
+	// 	pj_k (pj, "bpvars");
+	// 	r_anal_var_list_show (core->anal, fcn, 'b', 'j', pj);
+	// 	pj_k (pj, "spvars");
+	// 	r_anal_var_list_show (core->anal, fcn, 's', 'j', pj);
+	// 	pj_k (pj, "regvars");
+	// 	r_anal_var_list_show (core->anal, fcn, 'r', 'j', pj);
+
+	// 	pj_ks (pj, "difftype", fcn->diff->type == R_ANAL_DIFF_TYPE_MATCH?"match":
+	// 			fcn->diff->type == R_ANAL_DIFF_TYPE_UNMATCH?"unmatch":"new");
+	// 	if (fcn->diff->addr != -1) {
+	// 		pj_kn (pj, "diffaddr", fcn->diff->addr);
+	// 	}
+	// 	if (fcn->diff->name) {
+	// 		pj_ks (pj, "diffname", fcn->diff->name);
+	// 	}
+	// }
 }
 
 static int fcn_list_json(RCore *core, RList *fcns, bool quiet) {
