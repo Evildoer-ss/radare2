@@ -8802,9 +8802,20 @@ static void cmd_anal_graph(RCore *core, const char *input) {
 					R_CORE_ANAL_GRAPHBODY);
 			}
 			break;
-		case 'j': // "agfj"
-			r_core_anal_graph (core, r_num_math (core->num, input + 2), R_CORE_ANAL_JSON);
+		case 'j': { // "agfj"
+			RListIter *iter;
+			RAnalFunction *fcn;
+			int i = 0;
+			r_list_foreach (core->anal->fcns, iter, fcn) {
+				if (i != 0) {
+					r_cons_printf (",\n");
+				}
+				i = 1;
+				r_core_anal_graph (core, fcn->addr, R_CORE_ANAL_JSON);
+			}
+			// r_core_anal_graph (core, r_num_math (core->num, input + 2), R_CORE_ANAL_JSON);
 			break;
+		}
 		case 'J': { // "agfJ"
 			// Honor asm.graph=false in json as well
 			RConfigHold *hc = r_config_hold_new (core->config);
@@ -9690,73 +9701,74 @@ static int cmd_anal_all(RCore *core, const char *input) {
 			}
 			r_cons_clear_line (1);
 			bool cfg_debug = r_config_get_i (core->config, "cfg.debug");
+			// if (false) { // "for test python script"
 			if (*input == 'a') { // "aaa"
-				if (r_str_startswith (r_config_get (core->config, "bin.lang"), "go")) {
-					oldstr = r_print_rowlog (core->print, "Find function and symbol names from golang binaries (aang)");
-					r_print_rowlog_done (core->print, oldstr);
-					r_core_anal_autoname_all_golang_fcns (core);
-					oldstr = r_print_rowlog (core->print, "Analyze all flags starting with sym.go. (aF @@ sym.go.*)");
-					r_core_cmd0 (core, "aF @@ sym.go.*");
-					r_print_rowlog_done (core->print, oldstr);
-				}
-				r_core_task_yield (&core->tasks);
-				if (!cfg_debug) {
-					if (dh_orig && strcmp (dh_orig, "esil")) {
-						r_core_cmd0 (core, "dL esil");
-						r_core_task_yield (&core->tasks);
-					}
-				}
-				int c = r_config_get_i (core->config, "anal.calls");
-				r_config_set_i (core->config, "anal.calls", 1);
-				r_core_cmd0 (core, "s $S");
-				if (r_cons_is_breaked ()) {
-					goto jacuzzi;
-				}
+				// if (r_str_startswith (r_config_get (core->config, "bin.lang"), "go")) {
+				// 	oldstr = r_print_rowlog (core->print, "Find function and symbol names from golang binaries (aang)");
+				// 	r_print_rowlog_done (core->print, oldstr);
+				// 	r_core_anal_autoname_all_golang_fcns (core);
+				// 	oldstr = r_print_rowlog (core->print, "Analyze all flags starting with sym.go. (aF @@ sym.go.*)");
+				// 	r_core_cmd0 (core, "aF @@ sym.go.*");
+				// 	r_print_rowlog_done (core->print, oldstr);
+				// }
+				// r_core_task_yield (&core->tasks);
+				// if (!cfg_debug) {
+				// 	if (dh_orig && strcmp (dh_orig, "esil")) {
+				// 		r_core_cmd0 (core, "dL esil");
+				// 		r_core_task_yield (&core->tasks);
+				// 	}
+				// }
+				// int c = r_config_get_i (core->config, "anal.calls");
+				// r_config_set_i (core->config, "anal.calls", 1);
+				// r_core_cmd0 (core, "s $S");
+				// if (r_cons_is_breaked ()) {
+				// 	goto jacuzzi;
+				// }
 
-				oldstr = r_print_rowlog (core->print, "Analyze function calls (aac)");
-				(void)cmd_anal_calls (core, "", false, false); // "aac"
-				r_core_seek (core, curseek, true);
-				// oldstr = r_print_rowlog (core->print, "Analyze data refs as code (LEA)");
-				// (void) cmd_anal_aad (core, NULL); // "aad"
-				r_print_rowlog_done (core->print, oldstr);
-				r_core_task_yield (&core->tasks);
-				if (r_cons_is_breaked ()) {
-					goto jacuzzi;
-				}
+				// oldstr = r_print_rowlog (core->print, "Analyze function calls (aac)");
+				// (void)cmd_anal_calls (core, "", false, false); // "aac"
+				// r_core_seek (core, curseek, true);
+				// // oldstr = r_print_rowlog (core->print, "Analyze data refs as code (LEA)");
+				// // (void) cmd_anal_aad (core, NULL); // "aad"
+				// r_print_rowlog_done (core->print, oldstr);
+				// r_core_task_yield (&core->tasks);
+				// if (r_cons_is_breaked ()) {
+				// 	goto jacuzzi;
+				// }
 
-				if (is_unknown_file (core)) {
-					oldstr = r_print_rowlog (core->print, "find and analyze function preludes (aap)");
-					(void)r_core_search_preludes (core, false); // "aap"
-					didAap = true;
-					r_print_rowlog_done (core->print, oldstr);
-					r_core_task_yield (&core->tasks);
-					if (r_cons_is_breaked ()) {
-						goto jacuzzi;
-					}
-				}
+				// if (is_unknown_file (core)) {
+				// 	oldstr = r_print_rowlog (core->print, "find and analyze function preludes (aap)");
+				// 	(void)r_core_search_preludes (core, false); // "aap"
+				// 	didAap = true;
+				// 	r_print_rowlog_done (core->print, oldstr);
+				// 	r_core_task_yield (&core->tasks);
+				// 	if (r_cons_is_breaked ()) {
+				// 		goto jacuzzi;
+				// 	}
+				// }
 
-				oldstr = r_print_rowlog (core->print, "Analyze len bytes of instructions for references (aar)");
-				(void)r_core_anal_refs (core, ""); // "aar"
-				r_print_rowlog_done (core->print, oldstr);
-				r_core_task_yield (&core->tasks);
-				if (r_cons_is_breaked ()) {
-					goto jacuzzi;
-				}
-				if (is_apple_target (core)) {
-					oldstr = r_print_rowlog (core->print, "Check for objc references");
-					r_print_rowlog_done (core->print, oldstr);
-					cmd_anal_objc (core, input + 1, true);
-				}
-				r_core_task_yield (&core->tasks);
-				oldstr = r_print_rowlog (core->print, "Check for vtables");
-				r_core_cmd0 (core, "avrr");
-				r_print_rowlog_done (core->print, oldstr);
-				r_core_task_yield (&core->tasks);
-				r_config_set_i (core->config, "anal.calls", c);
-				r_core_task_yield (&core->tasks);
-				if (r_cons_is_breaked ()) {
-					goto jacuzzi;
-				}
+				// oldstr = r_print_rowlog (core->print, "Analyze len bytes of instructions for references (aar)");
+				// (void)r_core_anal_refs (core, ""); // "aar"
+				// r_print_rowlog_done (core->print, oldstr);
+				// r_core_task_yield (&core->tasks);
+				// if (r_cons_is_breaked ()) {
+				// 	goto jacuzzi;
+				// }
+				// if (is_apple_target (core)) {
+				// 	oldstr = r_print_rowlog (core->print, "Check for objc references");
+				// 	r_print_rowlog_done (core->print, oldstr);
+				// 	cmd_anal_objc (core, input + 1, true);
+				// }
+				// r_core_task_yield (&core->tasks);
+				// oldstr = r_print_rowlog (core->print, "Check for vtables");
+				// r_core_cmd0 (core, "avrr");
+				// r_print_rowlog_done (core->print, oldstr);
+				// r_core_task_yield (&core->tasks);
+				// r_config_set_i (core->config, "anal.calls", c);
+				// r_core_task_yield (&core->tasks);
+				// if (r_cons_is_breaked ()) {
+				// 	goto jacuzzi;
+				// }
 				if (!r_str_startswith (r_config_get (core->config, "asm.arch"), "x86")) {
 					r_core_cmd0 (core, "aav");
 					r_core_task_yield (&core->tasks);
@@ -9775,55 +9787,55 @@ static int cmd_anal_all(RCore *core, const char *input) {
 						goto jacuzzi;
 					}
 				}
-				if (r_config_get_i (core->config, "anal.autoname")) {
-					oldstr = r_print_rowlog (core->print, "Speculatively constructing a function name "
-					                         "for fcn.* and sym.func.* functions (aan)");
-					r_core_anal_autoname_all_fcns (core);
-					r_print_rowlog_done (core->print, oldstr);
-					r_core_task_yield (&core->tasks);
-				}
-				if (core->anal->opt.vars) {
-					RAnalFunction *fcni;
-					RListIter *iter;
-					r_list_foreach (core->anal->fcns, iter, fcni) {
-						if (r_cons_is_breaked ()) {
-							break;
-						}
-						RList *list = r_anal_var_list (core->anal, fcni, 'r');
-						if (!r_list_empty (list)) {
-							r_list_free (list);
-							continue;
-						}
-						//extract only reg based var here
-						r_core_recover_vars (core, fcni, true);
-						r_list_free (list);
-					}
-					r_core_task_yield (&core->tasks);
-				}
-				if (!sdb_isempty (core->anal->sdb_zigns)) {
-					oldstr = r_print_rowlog (core->print, "Check for zignature from zigns folder (z/)");
-					r_core_cmd0 (core, "z/");
-					r_print_rowlog_done (core->print, oldstr);
-					r_core_task_yield (&core->tasks);
-				}
+				// if (r_config_get_i (core->config, "anal.autoname")) {
+				// 	oldstr = r_print_rowlog (core->print, "Speculatively constructing a function name "
+				// 	                         "for fcn.* and sym.func.* functions (aan)");
+				// 	r_core_anal_autoname_all_fcns (core);
+				// 	r_print_rowlog_done (core->print, oldstr);
+				// 	r_core_task_yield (&core->tasks);
+				// }
+				// if (core->anal->opt.vars) {
+				// 	RAnalFunction *fcni;
+				// 	RListIter *iter;
+				// 	r_list_foreach (core->anal->fcns, iter, fcni) {
+				// 		if (r_cons_is_breaked ()) {
+				// 			break;
+				// 		}
+				// 		RList *list = r_anal_var_list (core->anal, fcni, 'r');
+				// 		if (!r_list_empty (list)) {
+				// 			r_list_free (list);
+				// 			continue;
+				// 		}
+				// 		//extract only reg based var here
+				// 		r_core_recover_vars (core, fcni, true);
+				// 		r_list_free (list);
+				// 	}
+				// 	r_core_task_yield (&core->tasks);
+				// }
+				// if (!sdb_isempty (core->anal->sdb_zigns)) {
+				// 	oldstr = r_print_rowlog (core->print, "Check for zignature from zigns folder (z/)");
+				// 	r_core_cmd0 (core, "z/");
+				// 	r_print_rowlog_done (core->print, oldstr);
+				// 	r_core_task_yield (&core->tasks);
+				// }
 
-				oldstr = r_print_rowlog (core->print, "Type matching analysis for all functions (aaft)");
-				r_core_cmd0 (core, "aaft");
-				r_print_rowlog_done (core->print, oldstr);
-				r_core_task_yield (&core->tasks);
+				// oldstr = r_print_rowlog (core->print, "Type matching analysis for all functions (aaft)");
+				// r_core_cmd0 (core, "aaft");
+				// r_print_rowlog_done (core->print, oldstr);
+				// r_core_task_yield (&core->tasks);
 
-				oldstr = r_print_rowlog (core->print, "Propagate noreturn information");
-				r_core_anal_propagate_noreturn (core, UT64_MAX);
-				r_print_rowlog_done (core->print, oldstr);
-				r_core_task_yield (&core->tasks);
+				// oldstr = r_print_rowlog (core->print, "Propagate noreturn information");
+				// r_core_anal_propagate_noreturn (core, UT64_MAX);
+				// r_print_rowlog_done (core->print, oldstr);
+				// r_core_task_yield (&core->tasks);
 
 				// apply dwarf function information
-				Sdb *dwarf_sdb = sdb_ns (core->anal->sdb, "dwarf", 0);
-				if (dwarf_sdb) {
-					oldstr = r_print_rowlog (core->print, "Integrate dwarf function information.");
-					r_anal_dwarf_integrate_functions (core->anal, core->flags, dwarf_sdb);
-					r_print_rowlog_done (core->print, oldstr);
-				}
+				// Sdb *dwarf_sdb = sdb_ns (core->anal->sdb, "dwarf", 0);
+				// if (dwarf_sdb) {
+				// 	oldstr = r_print_rowlog (core->print, "Integrate dwarf function information.");
+				// 	r_anal_dwarf_integrate_functions (core->anal, core->flags, dwarf_sdb);
+				// 	r_print_rowlog_done (core->print, oldstr);
+				// }
 
 				oldstr = r_print_rowlog (core->print, "Use -AA or aaaa to perform additional experimental analysis.");
 				r_print_rowlog_done (core->print, oldstr);

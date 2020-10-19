@@ -651,7 +651,7 @@ static int fcn_recurse(RAnal *anal, RAnalFunction *fcn, ut64 addr, ut64 len, int
 		maxlen = 0;
 	}
 
-	gotoBeach (R_ANAL_RET_END);
+	// gotoBeach (R_ANAL_RET_END);
 	while (addrbytes * idx < maxlen) {
 		if (!last_is_reg_mov_lea) {
 			free (last_reg_mov_lea_name);
@@ -1476,6 +1476,8 @@ R_API int r_anal_fcn(RAnal *anal, RAnalFunction *fcn, ut64 addr, ut64 len, int r
 	}
 	int ret = r_anal_fcn_bb (anal, fcn, addr, anal->opt.depth);
 	return ret;
+
+	// the following is useless, but lazy for commenting -- ssj
 	if (ret < 0) {
 		if (anal->verbose) {
 			eprintf ("Failed to analyze basic block at 0x%"PFMT64x"\n", addr);

@@ -6083,8 +6083,8 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 		// 		free (buf);
 		// 	}
 		// }
-		pj_o (pj);
-		pj_kn (pj, "offset", at);
+		// pj_o (pj);
+		// pj_kn (pj, "offset", at);
 		// if (ds->analop.ptr != UT64_MAX) {
 		// 	pj_kn (pj, "ptr", ds->analop.ptr);
 		// }
@@ -6107,60 +6107,60 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 		// pj_ks (pj, "family", r_anal_op_family_to_string (ds->analop.family));
 		// pj_ks (pj, "type", r_anal_optype_to_string (ds->analop.type));
 		// // indicate a relocated address
-		RBinReloc *rel = r_core_getreloc (core, ds->at, ds->analop.size);
+		// RBinReloc *rel = r_core_getreloc (core, ds->at, ds->analop.size);
 		// // reloc is true if address in reloc table
 		// pj_kb (pj, "reloc", rel);
 		// // wanted the numerical values of the type information
 		// pj_kn (pj, "type_num", (ut64)(ds->analop.type & UT64_MAX));
 		// pj_kn (pj, "type2_num", (ut64)(ds->analop.type2 & UT64_MAX));
 		// handle switch statements
-		if (ds->analop.switch_op && r_list_length (ds->analop.switch_op->cases) > 0) {
-			// XXX - the java caseop will still be reported in the assembly,
-			// this is an artifact to make ensure the disassembly is properly
-			// represented during the analysis
-			RListIter *iter;
-			RAnalCaseOp *caseop;
-			pj_k (pj, "switch");
-			pj_a (pj);
-			r_list_foreach (ds->analop.switch_op->cases, iter, caseop ) {
-				pj_o (pj);
-				pj_kn (pj, "addr", caseop->addr);
-				pj_kN (pj, "value", (st64) caseop->value);
-				pj_kn (pj, "jump", caseop->jump);
-				pj_end (pj);
-			}
-			pj_end (pj);
-		}
-		if (ds->analop.jump != UT64_MAX ) {
-			pj_kN (pj, "jump", ds->analop.jump);
-			if (ds->analop.fail != UT64_MAX) {
-				pj_kn (pj, "fail", ds->analop.fail);
-			}
-		}
+		// if (ds->analop.switch_op && r_list_length (ds->analop.switch_op->cases) > 0) {
+		// 	// XXX - the java caseop will still be reported in the assembly,
+		// 	// this is an artifact to make ensure the disassembly is properly
+		// 	// represented during the analysis
+		// 	RListIter *iter;
+		// 	RAnalCaseOp *caseop;
+		// 	pj_k (pj, "switch");
+		// 	pj_a (pj);
+		// 	r_list_foreach (ds->analop.switch_op->cases, iter, caseop ) {
+		// 		pj_o (pj);
+		// 		pj_kn (pj, "addr", caseop->addr);
+		// 		pj_kN (pj, "value", (st64) caseop->value);
+		// 		pj_kn (pj, "jump", caseop->jump);
+		// 		pj_end (pj);
+		// 	}
+		// 	pj_end (pj);
+		// }
+		// if (ds->analop.jump != UT64_MAX ) {
+		// 	pj_kN (pj, "jump", ds->analop.jump);
+		// 	if (ds->analop.fail != UT64_MAX) {
+		// 		pj_kn (pj, "fail", ds->analop.fail);
+		// 	}
+		// }
 		/* add flags */
-		{
-			const RList *flags = r_flag_get_list (core->flags, at);
-			RFlagItem *flag;
-			RListIter *iter;
-			if (flags && !r_list_empty (flags)) {
-				pj_k (pj, "flags");
-				pj_a (pj);
-				r_list_foreach (flags, iter, flag) {
-					pj_s (pj, flag->name);
-				}
-				pj_end (pj);
-			}
-		}
+		// {
+		// 	const RList *flags = r_flag_get_list (core->flags, at);
+		// 	RFlagItem *flag;
+		// 	RListIter *iter;
+		// 	if (flags && !r_list_empty (flags)) {
+		// 		pj_k (pj, "flags");
+		// 		pj_a (pj);
+		// 		r_list_foreach (flags, iter, flag) {
+		// 			pj_s (pj, flag->name);
+		// 		}
+		// 		pj_end (pj);
+		// 	}
+		// }
 		/* add comments */
-		{
-			// TODO: slow because we are encoding b64
-			const char *comment = r_meta_get_string (core->anal, R_META_TYPE_COMMENT, at);
-			if (comment) {
-				char *b64comment = sdb_encode ((const ut8*)comment, -1);
-				pj_ks (pj, "comment", b64comment);
-				free (b64comment);
-			}
-		}
+		// {
+		// 	// TODO: slow because we are encoding b64
+		// 	const char *comment = r_meta_get_string (core->anal, R_META_TYPE_COMMENT, at);
+		// 	if (comment) {
+		// 		char *b64comment = sdb_encode ((const ut8*)comment, -1);
+		// 		pj_ks (pj, "comment", b64comment);
+		// 		free (b64comment);
+		// 	}
+		// }
 		// pj_o (pj);
 		/* add refs */
 		{
@@ -6168,6 +6168,7 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 			RListIter *iter;
 			RList *refs = r_anal_refs_get (core->anal, at);
 			if (refs && !r_list_empty (refs)) {
+				pj_o (pj);
 				pj_k (pj, "refs");
 				pj_a (pj);
 				r_list_foreach (refs, iter, ref) {
@@ -6177,29 +6178,30 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 					pj_end (pj);
 				}
 				pj_end (pj);
+				pj_end (pj);
 			}
 			r_list_free (refs);
 		}
 		/* add xrefs */
-		{
-			RAnalRef *ref;
-			RListIter *iter;
-			RList *xrefs = r_anal_xrefs_get (core->anal, at);
-			if (xrefs && !r_list_empty (xrefs)) {
-				pj_k (pj, "xrefs");
-				pj_a (pj);
-				r_list_foreach (xrefs, iter, ref) {
-					pj_o (pj);
-					pj_kn (pj, "addr", ref->addr);
-					pj_ks (pj, "type", r_anal_xrefs_type_tostring (ref->type));
-					pj_end (pj);
-				}
-				pj_end (pj);
-			}
-			r_list_free (xrefs);
-		}
+		// {
+		// 	RAnalRef *ref;
+		// 	RListIter *iter;
+		// 	RList *xrefs = r_anal_xrefs_get (core->anal, at);
+		// 	if (xrefs && !r_list_empty (xrefs)) {
+		// 		pj_k (pj, "xrefs");
+		// 		pj_a (pj);
+		// 		r_list_foreach (xrefs, iter, ref) {
+		// 			pj_o (pj);
+		// 			pj_kn (pj, "addr", ref->addr);
+		// 			pj_ks (pj, "type", r_anal_xrefs_type_tostring (ref->type));
+		// 			pj_end (pj);
+		// 		}
+		// 		pj_end (pj);
+		// 	}
+		// 	r_list_free (xrefs);
+		// }
 
-		pj_end (pj);
+		
 		i += ds->oplen + asmop.payload + (ds->asmop.payload % ds->core->rasm->dataalign); // bytes
 		k += ds->oplen + asmop.payload + (ds->asmop.payload % ds->core->rasm->dataalign); // delta from addr
 		j++; // instructions
