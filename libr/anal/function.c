@@ -127,9 +127,9 @@ R_API void r_anal_function_free(void *_fcn) {
 }
 
 R_API bool r_anal_add_function(RAnal *anal, RAnalFunction *fcn) {
-	if (__fcn_exists (anal, fcn->name, fcn->addr)) {
-		return false;
-	}
+	// if (__fcn_exists (anal, fcn->name, fcn->addr)) {
+	// 	return false;
+	// }
 	if (anal->cb.on_fcn_new) {
 		anal->cb.on_fcn_new (anal, anal->user, fcn);
 	}

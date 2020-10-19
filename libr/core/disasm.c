@@ -6004,7 +6004,7 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 		} else if (i >= nb_bytes) {
 			break;
 		}
-		# if 0
+		
 		memset (&asmop, 0, sizeof (RAsmOp));
 		// todo
 		ret = r_asm_disassemble (core->rasm, &asmop, buf + i, nb_bytes - i);
@@ -6012,9 +6012,9 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 			char *hex = r_asm_op_get_hex (&asmop);
 			pj_o (pj);
 			pj_kn (pj, "offset", at);
-			pj_ki (pj, "size", 1);
-			pj_ks (pj, "bytes", hex);
-			pj_ks (pj, "type", "invalid");
+			// pj_ki (pj, "size", 1);
+			// pj_ks (pj, "bytes", hex);
+			// pj_ks (pj, "type", "invalid");
 			pj_end (pj);
 			i++;
 			k++;
@@ -6070,51 +6070,49 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 				core->parser->subrel_addr = killme;
 			}
 		}
-		{
-			char *aop = r_asm_op_get_asm (&asmop);
-			char *buf = malloc (strlen (aop) + 128);
-			if (buf) {
-				strcpy (buf, aop);
-				buf = ds_sub_jumps (ds, buf);
-				r_parse_filter (core->parser, ds->vat, core->flags, ds->hint, buf,
-					str, sizeof (str) - 1, core->print->big_endian);
-				str[sizeof (str) - 1] = '\0';
-				r_asm_op_set_asm (&asmop, buf);
-				free (buf);
-			}
-		}
-		# endif
+		// {
+		// 	char *aop = r_asm_op_get_asm (&asmop);
+		// 	char *buf = malloc (strlen (aop) + 128);
+		// 	if (buf) {
+		// 		strcpy (buf, aop);
+		// 		buf = ds_sub_jumps (ds, buf);
+		// 		r_parse_filter (core->parser, ds->vat, core->flags, ds->hint, buf,
+		// 			str, sizeof (str) - 1, core->print->big_endian);
+		// 		str[sizeof (str) - 1] = '\0';
+		// 		r_asm_op_set_asm (&asmop, buf);
+		// 		free (buf);
+		// 	}
+		// }
 		pj_o (pj);
 		pj_kn (pj, "offset", at);
-		# if 0
-		if (ds->analop.ptr != UT64_MAX) {
-			pj_kn (pj, "ptr", ds->analop.ptr);
-		}
-		if (ds->analop.val != UT64_MAX) {
-			pj_kn (pj, "val", ds->analop.val);
-		}
-		pj_k (pj, "esil"); // split key and value to allow empty strings
-		pj_s (pj, R_STRBUF_SAFEGET (&ds->analop.esil));
-		pj_kb (pj, "refptr", ds->analop.refptr);
-		pj_kn (pj, "fcn_addr", f ? f->addr : 0);
-		pj_kn (pj, "fcn_last", f ? r_anal_function_max_addr (f) - ds->oplen : 0);
-		pj_ki (pj, "size", ds->analop.size);
-		pj_ks (pj, "opcode", opstr);
-		pj_ks (pj, "disasm", str);
-		{
-			char *hex = r_asm_op_get_hex (&asmop);
-			pj_ks (pj, "bytes", hex);
-			free (hex);
-		}
-		pj_ks (pj, "family", r_anal_op_family_to_string (ds->analop.family));
-		pj_ks (pj, "type", r_anal_optype_to_string (ds->analop.type));
-		// indicate a relocated address
+		// if (ds->analop.ptr != UT64_MAX) {
+		// 	pj_kn (pj, "ptr", ds->analop.ptr);
+		// }
+		// if (ds->analop.val != UT64_MAX) {
+		// 	pj_kn (pj, "val", ds->analop.val);
+		// }
+		// pj_k (pj, "esil"); // split key and value to allow empty strings
+		// pj_s (pj, R_STRBUF_SAFEGET (&ds->analop.esil));
+		// pj_kb (pj, "refptr", ds->analop.refptr);
+		// pj_kn (pj, "fcn_addr", f ? f->addr : 0);
+		// pj_kn (pj, "fcn_last", f ? r_anal_function_max_addr (f) - ds->oplen : 0);
+		// pj_ki (pj, "size", ds->analop.size);
+		// pj_ks (pj, "opcode", opstr);
+		// pj_ks (pj, "disasm", str);
+		// {
+		// 	char *hex = r_asm_op_get_hex (&asmop);
+		// 	pj_ks (pj, "bytes", hex);
+		// 	free (hex);
+		// }
+		// pj_ks (pj, "family", r_anal_op_family_to_string (ds->analop.family));
+		// pj_ks (pj, "type", r_anal_optype_to_string (ds->analop.type));
+		// // indicate a relocated address
 		RBinReloc *rel = r_core_getreloc (core, ds->at, ds->analop.size);
-		// reloc is true if address in reloc table
-		pj_kb (pj, "reloc", rel);
-		// wanted the numerical values of the type information
-		pj_kn (pj, "type_num", (ut64)(ds->analop.type & UT64_MAX));
-		pj_kn (pj, "type2_num", (ut64)(ds->analop.type2 & UT64_MAX));
+		// // reloc is true if address in reloc table
+		// pj_kb (pj, "reloc", rel);
+		// // wanted the numerical values of the type information
+		// pj_kn (pj, "type_num", (ut64)(ds->analop.type & UT64_MAX));
+		// pj_kn (pj, "type2_num", (ut64)(ds->analop.type2 & UT64_MAX));
 		// handle switch statements
 		if (ds->analop.switch_op && r_list_length (ds->analop.switch_op->cases) > 0) {
 			// XXX - the java caseop will still be reported in the assembly,
@@ -6163,7 +6161,6 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 				free (b64comment);
 			}
 		}
-		# endif
 		// pj_o (pj);
 		/* add refs */
 		{

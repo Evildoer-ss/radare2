@@ -130,13 +130,13 @@ if [ "${PREFIX}" != "/usr" ]; then
 fi
 
 # build
-${MAKE} mrproper > /dev/null 2>&1
+# ${MAKE} mrproper > /dev/null 2>&1
 [ "${OSNAME}" = Linux ] && export LDFLAGS="-Wl,--as-needed ${LDFLAGS}"
 [ -z "${KEEP_PLUGINS_CFG}" ] && rm -f plugins.cfg
 unset R2DEPS
 pwd
 
-./configure ${CFGARG} --prefix="${PREFIX}" || exit 1
+# ./configure ${CFGARG} --prefix="${PREFIX}" || exit 1
 ${MAKE} -s -j${MAKE_JOBS} MAKE_JOBS=${MAKE_JOBS} || exit 1
 if [ "${OSNAME}" = Darwin ]; then
 	./sys/macos-cert.sh

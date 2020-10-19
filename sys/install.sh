@@ -96,6 +96,7 @@ if [ "${M32}" = 1 ]; then
 elif [ "${HARDEN}" = 1 ]; then
 	# shellcheck disable=SC2048
 	# shellcheck disable=SC2086
+	echo "there????"
 	./sys/build-harden.sh ${ARGS} || exit 1
 else
 	# shellcheck disable=SC2048
@@ -103,4 +104,4 @@ else
 	./sys/build.sh ${ARGS} || exit 1
 fi
 
-${SUDO} ${MAKE} ${INSTALL_TARGET} -j20 || exit 1
+${SUDO} ${MAKE} ${INSTALL_TARGET} || exit 1

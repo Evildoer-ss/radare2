@@ -651,6 +651,7 @@ static int fcn_recurse(RAnal *anal, RAnalFunction *fcn, ut64 addr, ut64 len, int
 		maxlen = 0;
 	}
 
+	gotoBeach (R_ANAL_RET_END);
 	while (addrbytes * idx < maxlen) {
 		if (!last_is_reg_mov_lea) {
 			free (last_reg_mov_lea_name);
@@ -1434,18 +1435,18 @@ R_API void r_anal_del_jmprefs(RAnal *anal, RAnalFunction *fcn) {
 R_API int r_anal_fcn(RAnal *anal, RAnalFunction *fcn, ut64 addr, ut64 len, int reftype) {
 	RPVector *metas = r_meta_get_all_in(anal, addr, R_META_TYPE_ANY);
 	void **it;
-	r_pvector_foreach (metas, it) {
-		RAnalMetaItem *meta = ((RIntervalNode *)*it)->data;
-		switch (meta->type) {
-		case R_META_TYPE_DATA:
-		case R_META_TYPE_STRING:
-		case R_META_TYPE_FORMAT:
-			r_pvector_free (metas);
-			return 0;
-		default:
-			break;
-		}
-	}
+	// r_pvector_foreach (metas, it) {
+	// 	RAnalMetaItem *meta = ((RIntervalNode *)*it)->data;
+	// 	switch (meta->type) {
+	// 	case R_META_TYPE_DATA:
+	// 	case R_META_TYPE_STRING:
+	// 	case R_META_TYPE_FORMAT:
+	// 		r_pvector_free (metas);
+	// 		return 0;
+	// 	default:
+	// 		break;
+	// 	}
+	// }
 	r_pvector_free (metas);
 	if (anal->opt.norevisit) {
 		if (!anal->visited) {
@@ -1474,6 +1475,7 @@ R_API int r_anal_fcn(RAnal *anal, RAnalFunction *fcn, ut64 addr, ut64 len, int r
 		fcn->stack = fcn->maxstack = fcn->reg_save_area = shadow_store;
 	}
 	int ret = r_anal_fcn_bb (anal, fcn, addr, anal->opt.depth);
+	return ret;
 	if (ret < 0) {
 		if (anal->verbose) {
 			eprintf ("Failed to analyze basic block at 0x%"PFMT64x"\n", addr);
@@ -1500,9 +1502,9 @@ R_API int r_anal_fcn(RAnal *anal, RAnalFunction *fcn, ut64 addr, ut64 len, int r
 		}
 #if JAYRO_04
 		// fcn is not yet in anal => pass NULL
-		r_anal_function_resize (fcn, endaddr - fcn->addr);
+		// r_anal_function_resize (fcn, endaddr - fcn->addr);
 #endif
-		r_anal_trim_jmprefs (anal, fcn);
+		// r_anal_trim_jmprefs (anal, fcn);
 	}
 	return ret;
 }

@@ -776,83 +776,85 @@ static int __core_anal_fcn(RCore *core, ut64 at, ut64 from, int reftype, int dep
 	fcn->addr = at;
 	fcn->name = getFunctionName (core, at);
 
+	r_anal_add_function (core->anal, fcn);
+	return true;
+
 	if (!fcn->name) {
 		fcn->name = r_str_newf ("%s.%08"PFMT64x, fcnpfx, at);
 	}
-	eprintf ("fcn->name: %s\n", fcn->name);
-	// r_anal_fcn_invalidate_read_ahead_cache ();
+	r_anal_fcn_invalidate_read_ahead_cache ();
 	do {
-		RFlagItem *f;
-		// ut64 delta = r_anal_function_linear_size (fcn);
+		// RFlagItem *f;
+		ut64 delta = r_anal_function_linear_size (fcn);
 		// if (!r_io_is_valid_offset (core->io, at + delta, !core->anal->opt.noncode)) {
 		// 	goto error;
 		// }
 		if (r_cons_is_breaked ()) {
 			break;
 		}
-		// fcnlen = r_anal_fcn (core->anal, fcn, at + delta, core->anal->opt.bb_max_size, reftype);
-		if (core->anal->opt.searchstringrefs) {
-			// r_anal_set_stringrefs (core, fcn);
-		}
+		fcnlen = r_anal_fcn (core->anal, fcn, at + delta, core->anal->opt.bb_max_size, reftype);
+		// if (core->anal->opt.searchstringrefs) {
+		// 	// r_anal_set_stringrefs (core, fcn);
+		// }
 		// if (fcnlen == 0) {
 		// 	if (core->anal->verbose) {
 		// 		eprintf ("Analyzed function size is 0 at 0x%08"PFMT64x"\n", at + delta);
 		// 	}
 		// 	goto error;
 		// }
-		// if (fcnlen < 0) {
-		// 	switch (fcnlen) {
-		// 	case R_ANAL_RET_ERROR:
-		// 	case R_ANAL_RET_NEW:
-		// 	case R_ANAL_RET_DUP:
-		// 	case R_ANAL_RET_END:
-		// 		break;
-		// 	default:
-		// 		eprintf ("Oops. Negative fcnsize at 0x%08"PFMT64x" (%d)\n", at, fcnlen);
-		// 		continue;
-		// 	}
-		// }
-		f = r_core_flag_get_by_spaces (core->flags, fcn->addr);
-		set_fcn_name_from_flag (fcn, f, fcnpfx);
+		if (fcnlen < 0) {
+			switch (fcnlen) {
+			case R_ANAL_RET_ERROR:
+			case R_ANAL_RET_NEW:
+			case R_ANAL_RET_DUP:
+			case R_ANAL_RET_END:
+				break;
+			default:
+				eprintf ("Oops. Negative fcnsize at 0x%08"PFMT64x" (%d)\n", at, fcnlen);
+				continue;
+			}
+		}
+		// f = r_core_flag_get_by_spaces (core->flags, fcn->addr);
+		// set_fcn_name_from_flag (fcn, f, fcnpfx);
 
 		if (fcnlen == R_ANAL_RET_ERROR ||
 			(fcnlen == R_ANAL_RET_END && !r_anal_function_realsize (fcn))) { /* Error analyzing function */
 			if (core->anal->opt.followbrokenfcnsrefs) {
 				// r_anal_analyze_fcn_refs (core, fcn, depth);
 			}
-			// goto error;
+			goto error;
 		} else if (fcnlen == R_ANAL_RET_END) { /* Function analysis complete */
-			f = r_core_flag_get_by_spaces (core->flags, fcn->addr);
-			if (f && f->name && strncmp (f->name, "sect", 4)) { /* Check if it's already flagged */
-				char *new_name = strdup (f->name);
-				if (is_entry_flag (f)) {
-					RListIter *iter;
-					RBinSymbol *sym;
-					const RList *syms = r_bin_get_symbols (core->bin);
-					ut64 baddr = r_config_get_i (core->config, "bin.baddr");
-					r_list_foreach (syms, iter, sym) {
-						if ((sym->paddr + baddr) == fcn->addr && !strcmp (sym->type, R_BIN_TYPE_FUNC_STR)) {
-							free (new_name);
-							new_name = r_str_newf ("sym.%s", sym->name);
-							break;
-						}
-					}
-				}
-				free (fcn->name);
-				fcn->name = new_name;
-			} else {
-				R_FREE (fcn->name);
-				const char *fcnpfx = r_anal_fcntype_tostring (fcn->type);
-				if (!fcnpfx || !*fcnpfx || !strcmp (fcnpfx, "fcn")) {
-					fcnpfx = r_config_get (core->config, "anal.fcnprefix");
-				}
-				fcn->name = r_str_newf ("%s.%08"PFMT64x, fcnpfx, fcn->addr);
-				autoname_imp_trampoline (core, fcn);
-				/* Add flag */
-				r_flag_space_push (core->flags, R_FLAGS_FS_FUNCTIONS);
-				r_flag_set (core->flags, fcn->name, fcn->addr, r_anal_function_linear_size (fcn));
-				r_flag_space_pop (core->flags);
-			}
+			// f = r_core_flag_get_by_spaces (core->flags, fcn->addr);
+			// if (f && f->name && strncmp (f->name, "sect", 4)) { /* Check if it's already flagged */
+			// 	char *new_name = strdup (f->name);
+			// 	if (is_entry_flag (f)) {
+			// 		RListIter *iter;
+			// 		RBinSymbol *sym;
+			// 		const RList *syms = r_bin_get_symbols (core->bin);
+			// 		ut64 baddr = r_config_get_i (core->config, "bin.baddr");
+			// 		r_list_foreach (syms, iter, sym) {
+			// 			if ((sym->paddr + baddr) == fcn->addr && !strcmp (sym->type, R_BIN_TYPE_FUNC_STR)) {
+			// 				free (new_name);
+			// 				new_name = r_str_newf ("sym.%s", sym->name);
+			// 				break;
+			// 			}
+			// 		}
+			// 	}
+			// 	free (fcn->name);
+			// 	fcn->name = new_name;
+			// } else {
+			// 	R_FREE (fcn->name);
+			// 	const char *fcnpfx = r_anal_fcntype_tostring (fcn->type);
+			// 	if (!fcnpfx || !*fcnpfx || !strcmp (fcnpfx, "fcn")) {
+			// 		fcnpfx = r_config_get (core->config, "anal.fcnprefix");
+			// 	}
+			// 	fcn->name = r_str_newf ("%s.%08"PFMT64x, fcnpfx, fcn->addr);
+			// 	autoname_imp_trampoline (core, fcn);
+			// 	/* Add flag */
+			// 	r_flag_space_push (core->flags, R_FLAGS_FS_FUNCTIONS);
+			// 	r_flag_set (core->flags, fcn->name, fcn->addr, r_anal_function_linear_size (fcn));
+			// 	r_flag_space_pop (core->flags);
+			// }
 
 			/* New function: Add initial xref */
 			if (from != UT64_MAX) {
@@ -1625,14 +1627,14 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                         }
                         if (bbi->switch_op) {
                                 RAnalSwitchOp *op = bbi->switch_op;
-                                pj_k (pj, "switchop");
-                                pj_o (pj);
-                                pj_kn (pj, "offset", op->addr);
-                                pj_kn (pj, "defval", op->def_val);
-                                pj_kn (pj, "maxval", op->max_val);
-                                pj_kn (pj, "minval", op->min_val);
-                                pj_k (pj, "cases");
-                                pj_a (pj);
+                                // pj_k (pj, "switchop");
+                                // pj_o (pj);
+                                // pj_kn (pj, "offset", op->addr);
+                                // pj_kn (pj, "defval", op->def_val);
+                                // pj_kn (pj, "maxval", op->max_val);
+                                // pj_kn (pj, "minval", op->min_val);
+                                // pj_k (pj, "cases");
+                                // pj_a (pj);
                                 RAnalCaseOp *case_op;
                                 RListIter *case_iter;
                                 r_list_foreach (op->cases, case_iter, case_op) {
@@ -1670,7 +1672,6 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                         pj_end (pj);
                         continue;
                 }
-				# if 0
                 if ((str = core_anal_graph_label (core, bbi, opts))) {
                         if (opts & R_CORE_ANAL_GRAPHDIFF) {
                                 const char *difftype = bbi->diff? (\
@@ -1817,7 +1818,6 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                         }
                         free (str);
                 }
-				# endif
         }
         return nodes;
 }
@@ -3253,6 +3253,7 @@ R_API int r_core_anal_fcn_list(RCore *core, const char *input, const char *rad) 
 	char temp[64];
 	r_return_val_if_fail (core && core->anal, 0);
 	if (r_list_empty (core->anal->fcns)) {
+		eprintf("empty!!!!!\n");
 		return 0;
 	}
 	if (*rad == '.') {
@@ -3468,6 +3469,7 @@ static bool anal_block_cb(RAnalBlock *bb, BlockRecurseCtx *ctx) {
 
 // TODO: move this logic into the main anal loop
 R_API void r_core_recover_vars(RCore *core, RAnalFunction *fcn, bool argonly) {
+	return;
 	r_return_if_fail (core && core->anal && fcn);
 	if (core->anal->opt.bb_max_size < 1) {
 		return;
