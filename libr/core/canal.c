@@ -1637,28 +1637,28 @@ static int core_anal_graph_construct_nodes (RCore *core, RAnalFunction *fcn, int
                         if (bbi->fail != -1) {
                                 pj_kn (pj, "fail", bbi->fail);
                         }
-                        if (bbi->switch_op) {
-                                RAnalSwitchOp *op = bbi->switch_op;
-                                // pj_k (pj, "switchop");
-                                // pj_o (pj);
-                                // pj_kn (pj, "offset", op->addr);
-                                // pj_kn (pj, "defval", op->def_val);
-                                // pj_kn (pj, "maxval", op->max_val);
-                                // pj_kn (pj, "minval", op->min_val);
-                                // pj_k (pj, "cases");
-                                // pj_a (pj);
-                                RAnalCaseOp *case_op;
-                                RListIter *case_iter;
-                                r_list_foreach (op->cases, case_iter, case_op) {
-                                        pj_o (pj);
-                                        pj_kn (pj, "offset", case_op->addr);
-                                        pj_kn (pj, "value", case_op->value);
-                                        pj_kn (pj, "jump", case_op->jump);
-                                        pj_end (pj);
-                                }
-                                pj_end (pj);
-                                pj_end (pj);
-                        }
+                        // if (bbi->switch_op) {
+                        //         RAnalSwitchOp *op = bbi->switch_op;
+                        //         // pj_k (pj, "switchop");
+                        //         // pj_o (pj);
+                        //         // pj_kn (pj, "offset", op->addr);
+                        //         // pj_kn (pj, "defval", op->def_val);
+                        //         // pj_kn (pj, "maxval", op->max_val);
+                        //         // pj_kn (pj, "minval", op->min_val);
+                        //         // pj_k (pj, "cases");
+                        //         // pj_a (pj);
+                        //         RAnalCaseOp *case_op;
+                        //         RListIter *case_iter;
+                        //         r_list_foreach (op->cases, case_iter, case_op) {
+                        //                 pj_o (pj);
+                        //                 pj_kn (pj, "offset", case_op->addr);
+                        //                 pj_kn (pj, "value", case_op->value);
+                        //                 pj_kn (pj, "jump", case_op->jump);
+                        //                 pj_end (pj);
+                        //         }
+                        //         pj_end (pj);
+                        //         pj_end (pj);
+                        // }
                         if (t) {
                                 // pj_k (pj, "trace");
                                 // pj_o (pj);

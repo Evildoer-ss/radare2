@@ -2572,29 +2572,29 @@ static bool anal_fcn_list_bb(RCore *core, const char *input, bool one) {
 				if (b->fail != UT64_MAX) {
 					pj_kn (pj, "fail", b->fail);
 				}
-				if (b->switch_op) {
-					pj_k (pj, "switch_op");
-					pj_o (pj);
-					pj_kn (pj, "addr", b->switch_op->addr);
-					pj_kn (pj, "min_val", b->switch_op->min_val);
-					pj_kn (pj, "def_val", b->switch_op->def_val);
-					pj_kn (pj, "max_val", b->switch_op->max_val);
-					pj_k (pj, "cases");
-					pj_a (pj);
-					{
-						RListIter *case_op_iter;
-						RAnalCaseOp *case_op;
-						r_list_foreach (b->switch_op->cases, case_op_iter, case_op) {
-							pj_o (pj);
-							pj_kn (pj, "addr", case_op->addr);
-							pj_kn (pj, "jump", case_op->jump);
-							pj_kn (pj, "value", case_op->value);
-							pj_end (pj);
-						}
-					}
-					pj_end (pj);
-					pj_end (pj);
-				}
+				// if (b->switch_op) {
+				// 	pj_k (pj, "switch_op");
+				// 	pj_o (pj);
+				// 	pj_kn (pj, "addr", b->switch_op->addr);
+				// 	pj_kn (pj, "min_val", b->switch_op->min_val);
+				// 	pj_kn (pj, "def_val", b->switch_op->def_val);
+				// 	pj_kn (pj, "max_val", b->switch_op->max_val);
+				// 	pj_k (pj, "cases");
+				// 	pj_a (pj);
+				// 	{
+				// 		RListIter *case_op_iter;
+				// 		RAnalCaseOp *case_op;
+				// 		r_list_foreach (b->switch_op->cases, case_op_iter, case_op) {
+				// 			pj_o (pj);
+				// 			pj_kn (pj, "addr", case_op->addr);
+				// 			pj_kn (pj, "jump", case_op->jump);
+				// 			pj_kn (pj, "value", case_op->value);
+				// 			pj_end (pj);
+				// 		}
+				// 	}
+				// 	pj_end (pj);
+				// 	pj_end (pj);
+				// }
 				{
 					ut64 opaddr = __opaddr (b, addr);
 					pj_kn (pj, "opaddr", opaddr);
@@ -8807,7 +8807,7 @@ static void cmd_anal_graph(RCore *core, const char *input) {
 			RAnalFunction *fcn;
 			int i = 0;
 			r_list_foreach (core->anal->fcns, iter, fcn) {
-				if (i != 0) {
+				if (i != 0 && fcn->name != NULL) {
 					r_cons_printf (",\n");
 				}
 				i = 1;
