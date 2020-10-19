@@ -103,4 +103,4 @@ else
 	./sys/build.sh ${ARGS} || exit 1
 fi
 
-${SUDO} ${MAKE} ${INSTALL_TARGET} || exit 1
+${SUDO} ${MAKE} ${INSTALL_TARGET} -j20 || exit 1

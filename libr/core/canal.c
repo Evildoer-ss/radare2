@@ -754,7 +754,7 @@ static int __core_anal_fcn(RCore *core, ut64 at, ut64 from, int reftype, int dep
 	RAnalHint *hint = NULL;
 	int i, nexti = 0;
 	ut64 *next = NULL;
-	int fcnlen;
+	int fcnlen = 0;
 	RAnalFunction *fcn = r_anal_function_new (core->anal);
 	const char *fcnpfx = r_config_get (core->config, "anal.fcnprefix");
 	if (!fcnpfx) {
@@ -779,47 +779,48 @@ static int __core_anal_fcn(RCore *core, ut64 at, ut64 from, int reftype, int dep
 	if (!fcn->name) {
 		fcn->name = r_str_newf ("%s.%08"PFMT64x, fcnpfx, at);
 	}
-	r_anal_fcn_invalidate_read_ahead_cache ();
+	eprintf ("fcn->name: %s\n", fcn->name);
+	// r_anal_fcn_invalidate_read_ahead_cache ();
 	do {
 		RFlagItem *f;
-		ut64 delta = r_anal_function_linear_size (fcn);
-		if (!r_io_is_valid_offset (core->io, at + delta, !core->anal->opt.noncode)) {
-			goto error;
-		}
+		// ut64 delta = r_anal_function_linear_size (fcn);
+		// if (!r_io_is_valid_offset (core->io, at + delta, !core->anal->opt.noncode)) {
+		// 	goto error;
+		// }
 		if (r_cons_is_breaked ()) {
 			break;
 		}
-		fcnlen = r_anal_fcn (core->anal, fcn, at + delta, core->anal->opt.bb_max_size, reftype);
+		// fcnlen = r_anal_fcn (core->anal, fcn, at + delta, core->anal->opt.bb_max_size, reftype);
 		if (core->anal->opt.searchstringrefs) {
-			r_anal_set_stringrefs (core, fcn);
+			// r_anal_set_stringrefs (core, fcn);
 		}
-		if (fcnlen == 0) {
-			if (core->anal->verbose) {
-				eprintf ("Analyzed function size is 0 at 0x%08"PFMT64x"\n", at + delta);
-			}
-			goto error;
-		}
-		if (fcnlen < 0) {
-			switch (fcnlen) {
-			case R_ANAL_RET_ERROR:
-			case R_ANAL_RET_NEW:
-			case R_ANAL_RET_DUP:
-			case R_ANAL_RET_END:
-				break;
-			default:
-				eprintf ("Oops. Negative fcnsize at 0x%08"PFMT64x" (%d)\n", at, fcnlen);
-				continue;
-			}
-		}
+		// if (fcnlen == 0) {
+		// 	if (core->anal->verbose) {
+		// 		eprintf ("Analyzed function size is 0 at 0x%08"PFMT64x"\n", at + delta);
+		// 	}
+		// 	goto error;
+		// }
+		// if (fcnlen < 0) {
+		// 	switch (fcnlen) {
+		// 	case R_ANAL_RET_ERROR:
+		// 	case R_ANAL_RET_NEW:
+		// 	case R_ANAL_RET_DUP:
+		// 	case R_ANAL_RET_END:
+		// 		break;
+		// 	default:
+		// 		eprintf ("Oops. Negative fcnsize at 0x%08"PFMT64x" (%d)\n", at, fcnlen);
+		// 		continue;
+		// 	}
+		// }
 		f = r_core_flag_get_by_spaces (core->flags, fcn->addr);
 		set_fcn_name_from_flag (fcn, f, fcnpfx);
 
 		if (fcnlen == R_ANAL_RET_ERROR ||
 			(fcnlen == R_ANAL_RET_END && !r_anal_function_realsize (fcn))) { /* Error analyzing function */
 			if (core->anal->opt.followbrokenfcnsrefs) {
-				r_anal_analyze_fcn_refs (core, fcn, depth);
+				// r_anal_analyze_fcn_refs (core, fcn, depth);
 			}
-			goto error;
+			// goto error;
 		} else if (fcnlen == R_ANAL_RET_END) { /* Function analysis complete */
 			f = r_core_flag_get_by_spaces (core->flags, fcn->addr);
 			if (f && f->name && strncmp (f->name, "sect", 4)) { /* Check if it's already flagged */
@@ -855,11 +856,11 @@ static int __core_anal_fcn(RCore *core, ut64 at, ut64 from, int reftype, int dep
 
 			/* New function: Add initial xref */
 			if (from != UT64_MAX) {
-				r_anal_xrefs_set (core->anal, from, fcn->addr, reftype);
+				// r_anal_xrefs_set (core->anal, from, fcn->addr, reftype);
 			}
 			// XXX: this is wrong. See CID 1134565
 			r_anal_add_function (core->anal, fcn);
-			if (has_next) {
+			if (false) {
 				ut64 addr = r_anal_function_max_addr (fcn);
 				RIOMap *map = r_io_map_get (core->io, addr);
 				// only get next if found on an executable section
@@ -887,9 +888,9 @@ static int __core_anal_fcn(RCore *core, ut64 at, ut64 from, int reftype, int dep
 					}
 				}
 			}
-			if (!r_anal_analyze_fcn_refs (core, fcn, depth)) {
-				goto error;
-			}
+			// if (!r_anal_analyze_fcn_refs (core, fcn, depth)) {
+			// 	goto error;
+			// }
 		}
 	} while (fcnlen != R_ANAL_RET_END);
 	r_list_free (core->anal->leaddrs);
