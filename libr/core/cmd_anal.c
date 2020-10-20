@@ -8805,20 +8805,33 @@ static void cmd_anal_graph(RCore *core, const char *input) {
 		case 'j': { // "agfj"
 			RListIter *iter;
 			RAnalFunction *fcn;
-			int i = 0;
+			// ssj
+			int i = 0, len = 0;
+			unsigned long long *array = (unsigned long long *)malloc(len * sizeof(unsigned long long));
+			FILE* fp_ruf_ssj = fopen("/tmp/radare2_useful_funclist.ssj", "r");
+			while(!feof(fp_ruf_ssj)) {
+				unsigned long long off = 0;
+				fscanf(fp_ruf_ssj, "%llu", &off);
+				len++;
+				array = (unsigned long long *)realloc(array, len * sizeof(unsigned long long));
+				array[len - 1] = off;
+			}
+
 			r_list_foreach (core->anal->fcns, iter, fcn) {
-				if (fcn->name == NULL) {
-					continue;
+				if (fcn->name == NULL) { continue; }
+				bool is_skip = true;
+				for (int j = 0; j < len; ++j) {
+					if (array[j] == fcn->addr) {
+						is_skip = false;
+					}
 				}
-				if (i != 0) {
-					r_cons_printf (",\n");
-				}
+				if (is_skip) { continue; }
+				if (i != 0) { printf (",\n"); }
 				i++;
-				if (i % 500 == 0) {
-					eprintf("%s\n", fcn->name);
-				}
+				if (i % 1000 == 0) { eprintf("%d\n", i / 1000); }
 				r_core_anal_graph (core, fcn->addr, R_CORE_ANAL_JSON);
 			}
+			fflush(stdout);
 			// r_core_anal_graph (core, r_num_math (core->num, input + 2), R_CORE_ANAL_JSON);
 			break;
 		}
