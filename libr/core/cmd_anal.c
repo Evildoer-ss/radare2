@@ -8807,10 +8807,16 @@ static void cmd_anal_graph(RCore *core, const char *input) {
 			RAnalFunction *fcn;
 			int i = 0;
 			r_list_foreach (core->anal->fcns, iter, fcn) {
-				if (i != 0 && fcn->name != NULL) {
+				if (fcn->name == NULL) {
+					continue;
+				}
+				if (i != 0) {
 					r_cons_printf (",\n");
 				}
-				i = 1;
+				i++;
+				if (i % 500 == 0) {
+					eprintf("%s\n", fcn->name);
+				}
 				r_core_anal_graph (core, fcn->addr, R_CORE_ANAL_JSON);
 			}
 			// r_core_anal_graph (core, r_num_math (core->num, input + 2), R_CORE_ANAL_JSON);

@@ -3709,7 +3709,11 @@ R_API int r_core_anal_graph(RCore *core, ut64 addr, int opts) {
 	}
 	if (is_json) {
 		// pj_end (pj);
-		r_cons_printf ("%s", pj_string (pj));
+		// FILE* fp = fopen("/tmp/radare2_cfg.ssj")
+		// fprintf(fp, "%s", pj_string (pj));
+		// fclose(fp);
+		printf("%s", pj_string (pj));
+		// r_cons_printf ("%s", pj_string (pj));
 		pj_free (pj);
 	}
 	r_config_hold_restore (hc);
