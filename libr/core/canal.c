@@ -780,10 +780,6 @@ static int __core_anal_fcn(RCore *core, ut64 at, ut64 from, int reftype, int dep
 		return true;
 	}
 
-	// ssj
-	// r_anal_add_function (core->anal, fcn);
-	// return true;
-
 	if (!fcn->name) {
 		fcn->name = r_str_newf ("%s.%08"PFMT64x, fcnpfx, at);
 	}

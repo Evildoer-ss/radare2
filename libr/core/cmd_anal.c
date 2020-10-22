@@ -9923,7 +9923,26 @@ static int cmd_anal_all(RCore *core, const char *input) {
 			RListIter *it;
 			RAnalFunction *fcn;
 			ut64 cur_seek = core->offset;
+
+			// ssj
+			int len = 0;
+			unsigned long long *array = (unsigned long long *)malloc(len * sizeof(unsigned long long));
+			FILE* fp_ruf_ssj = fopen("/tmp/radare2_useful_funclist.ssj", "r");
+			while(!feof(fp_ruf_ssj)) {
+				unsigned long long off = 0;
+				fscanf(fp_ruf_ssj, "%llu", &off);
+				len++;
+				array = (unsigned long long *)realloc(array, len * sizeof(unsigned long long));
+				array[len - 1] = off;
+			}
 			r_list_foreach (core->anal->fcns, it, fcn) {
+				bool is_skip = true;
+				for (int j = 0; j < len; ++j) {
+					if (array[j] == fcn->addr) {
+						is_skip = false;
+					}
+				}
+				if (is_skip) { continue; }
 				r_core_seek (core, fcn->addr, true);
 				r_core_anal_esil (core, "f", NULL);
 			}
