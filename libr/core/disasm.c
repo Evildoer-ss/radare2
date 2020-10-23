@@ -6070,6 +6070,7 @@ R_API int r_core_print_disasm_json(RCore *core, ut64 addr, ut8 *buf, int nb_byte
 				core->parser->subrel_addr = killme;
 			}
 		}
+		// ssj
 		// {
 		// 	char *aop = r_asm_op_get_asm (&asmop);
 		// 	char *buf = malloc (strlen (aop) + 128);
