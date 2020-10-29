@@ -5018,7 +5018,7 @@ static int cmd_print(void *data, const char *input) {
 			if (f) {
 				func_walk_blocks (core, f, input[2], 'I', input[2] == '.');
 			} else {
-				eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
+				// eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
 				core->num->value = 0;
 			}
 		}
@@ -5029,7 +5029,7 @@ static int cmd_print(void *data, const char *input) {
 			if (b) {
 					r_core_print_disasm_instructions (core, b->size - (core->offset - b->addr), 0);
 			} else {
-				eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
+				// eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
 				core->num->value = 0;
 			}
 		}
@@ -5182,7 +5182,7 @@ static int cmd_print(void *data, const char *input) {
 				if (f) {
 					func_walk_blocks (core, f, input[2], 'D', input[2] == '.');
 				} else {
-					eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
+					// eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
 				}
 				pd_result = true;
 			}
@@ -5217,7 +5217,7 @@ static int cmd_print(void *data, const char *input) {
 						pd_result = 0;
 					}
 				} else {
-					eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
+					// eprintf ("Cannot find function at 0x%08"PFMT64x "\n", core->offset);
 					core->num->value = 0;
 				}
 			}

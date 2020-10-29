@@ -2473,7 +2473,7 @@ static bool anal_fcn_list_bb(RCore *core, const char *input, bool one) {
 			r_cons_println (pj_string (pj));
 			pj_free (pj);
 		}
-		eprintf ("Cannot find function in 0x%08"PFMT64x"\n", addr);
+		// eprintf ("Cannot find function in 0x%08"PFMT64x"\n", addr);
 		return false;
 	}
 	if (mode == '*') {
@@ -2732,7 +2732,7 @@ static bool anal_fcn_del_bb(RCore *core, const char *input) {
 			eprintf ("Cannot find basic block\n");
 		}
 	} else {
-		eprintf ("Cannot find function\n");
+		// eprintf ("Cannot find function\n");
 	}
 	return false;
 }
@@ -4089,7 +4089,7 @@ static int cmd_anal_fcn(RCore *core, const char *input) {
 					}
 				}
 				if (!*name || !__setFunctionName (core, off, name, false)) {
-					eprintf ("Cannot find function at 0x%08" PFMT64x "\n", off);
+					// eprintf ("Cannot find function at 0x%08" PFMT64x "\n", off);
 				}
 			}
 			free (name);
@@ -4316,7 +4316,7 @@ static int cmd_anal_fcn(RCore *core, const char *input) {
 							f = r_anal_get_function_at (core->anal, fcn->addr);
 						}
 						if (!f) {
-							eprintf ("af: Cannot find function at 0x%08" PFMT64x "\n", fcn->addr);
+							// eprintf ("af: Cannot find function at 0x%08" PFMT64x "\n", fcn->addr);
 						}
 					}
 #endif
@@ -4329,7 +4329,7 @@ static int cmd_anal_fcn(RCore *core, const char *input) {
 		}
 		if (name) {
 			if (*name && !__setFunctionName (core, addr, name, true)) {
-				eprintf ("af: Cannot find function at 0x%08" PFMT64x "\n", addr);
+				// eprintf ("af: Cannot find function at 0x%08" PFMT64x "\n", addr);
 			}
 			free (name);
 		}
@@ -6062,7 +6062,7 @@ static void __anal_esil_function(RCore *core, ut64 addr) {
 			free (buf);
 		}
 	} else {
-		eprintf ("Cannot find function at 0x%08" PFMT64x "\n", addr);
+		// eprintf ("Cannot find function at 0x%08" PFMT64x "\n", addr);
 	}
 	r_anal_esil_free (core->anal->esil);
 }
@@ -9389,8 +9389,8 @@ static void cmd_anal_aav(RCore *core, const char *input) {
 	int archAlign = r_anal_archinfo (core->anal, R_ANAL_ARCHINFO_ALIGN);
 	seti ("search.align", archAlign);
 	r_config_set (core->config, "anal.in", "io.maps.x");
-	oldstr = r_print_rowlog (core->print, "Finding xrefs in noncode section with anal.in=io.maps");
-	r_print_rowlog_done (core->print, oldstr);
+	// oldstr = r_print_rowlog (core->print, "Finding xrefs in noncode section with anal.in=io.maps");
+	// r_print_rowlog_done (core->print, oldstr);
 
 	int vsize = 4; // 32bit dword
 	if (core->rasm->bits == 64) {
@@ -9398,8 +9398,8 @@ static void cmd_anal_aav(RCore *core, const char *input) {
 	}
 
 	// body
-	oldstr = r_print_rowlog (core->print, "Analyze value pointers (aav)");
-	r_print_rowlog_done (core->print, oldstr);
+	// oldstr = r_print_rowlog (core->print, "Analyze value pointers (aav)");
+	// r_print_rowlog_done (core->print, oldstr);
 	r_cons_break_push (NULL, NULL);
 	if (is_debug) {
 		RList *list = r_core_get_boundaries_prot (core, 0, "dbg.map", "anal");
@@ -9437,7 +9437,7 @@ static void cmd_anal_aav(RCore *core, const char *input) {
 			to = r_itv_end (map2->itv);
 			oldstr = r_print_rowlog (core->print, sdb_fmt ("Value from 0x%08"PFMT64x " to 0x%08" PFMT64x " (aav)", from, to));
 			if ((to - from) > MAX_SCAN_SIZE) {
-				eprintf ("Warning: Skipping large region\n");
+				// eprintf ("Warning: Skipping large region\n");
 				continue;
 			}
 			r_print_rowlog_done (core->print, oldstr);
@@ -9700,11 +9700,11 @@ static int cmd_anal_all(RCore *core, const char *input) {
 				goto jacuzzi;
 			}
 			ut64 curseek = core->offset;
-			oldstr = r_print_rowlog (core->print, "Analyze all flags starting with sym. and entry0 (aa)");
+			// oldstr = r_print_rowlog (core->print, "Analyze all flags starting with sym. and entry0 (aa)");
 			r_cons_break_push (NULL, NULL);
 			r_cons_break_timeout (r_config_get_i (core->config, "anal.timeout"));
 			r_core_anal_all (core);
-			r_print_rowlog_done (core->print, oldstr);
+			// r_print_rowlog_done (core->print, oldstr);
 			r_core_task_yield (&core->tasks);
 			// Run pending analysis immediately after analysis
 			// Usefull when running commands with ";" or via r2 -c,-i
@@ -9793,9 +9793,9 @@ static int cmd_anal_all(RCore *core, const char *input) {
 					r_core_task_yield (&core->tasks);
 					bool ioCache = r_config_get_i (core->config, "io.pcache");
 					r_config_set_i (core->config, "io.pcache", 1);
-					oldstr = r_print_rowlog (core->print, "Emulate functions to find computed references (aaef)");
+					// oldstr = r_print_rowlog (core->print, "Emulate functions to find computed references (aaef)");
 					r_core_cmd0 (core, "aaef");
-					r_print_rowlog_done (core->print, oldstr);
+					// r_print_rowlog_done (core->print, oldstr);
 					r_core_task_yield (&core->tasks);
 					if (!ioCache) {
 						r_core_cmd0 (core, "wc-*");
@@ -9856,8 +9856,8 @@ static int cmd_anal_all(RCore *core, const char *input) {
 				// 	r_print_rowlog_done (core->print, oldstr);
 				// }
 
-				oldstr = r_print_rowlog (core->print, "Use -AA or aaaa to perform additional experimental analysis.");
-				r_print_rowlog_done (core->print, oldstr);
+				// oldstr = r_print_rowlog (core->print, "Use -AA or aaaa to perform additional experimental analysis.");
+				// r_print_rowlog_done (core->print, oldstr);
 
 				if (input[1] == 'a') { // "aaaa"
 					if (!didAap) {
@@ -9895,7 +9895,7 @@ static int cmd_anal_all(RCore *core, const char *input) {
 			if (fcn) {
 				r_core_link_stroff (core, fcn);
 			} else {
-				eprintf ("Cannot find function at %08" PFMT64x "\n", addr);
+				// eprintf ("Cannot find function at %08" PFMT64x "\n", addr);
 			}
 		} else {
 			if (r_list_empty (core->anal->fcns)) {

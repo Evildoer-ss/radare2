@@ -1015,7 +1015,7 @@ rep:
 				if (fcn) {
 					r_anal_function_delete_label_at (fcn, off);
 				} else {
-					eprintf ("Cannot find function at 0x%08"PFMT64x"\n", off);
+					// eprintf ("Cannot find function at 0x%08"PFMT64x"\n", off);
 				}
 			} else {
 				if (strchr (flagname, '*')) {
@@ -1039,7 +1039,7 @@ rep:
 					if (fcn) {
 						print_function_labels (core->anal, fcn, input[1]);
 					} else {
-						eprintf ("Cannot find function at 0x%08"PFMT64x"\n", off);
+						// eprintf ("Cannot find function at 0x%08"PFMT64x"\n", off);
 					}
 				}
 			} else {
@@ -1059,7 +1059,7 @@ rep:
 							r_anal_function_set_label (fcn, name, off);
 						}
 					} else {
-						eprintf ("Cannot find function at 0x%08"PFMT64x"\n", off);
+						// eprintf ("Cannot find function at 0x%08"PFMT64x"\n", off);
 					}
 					free (name);
 				}
