@@ -385,7 +385,7 @@ static void get_strings_range(RBinFile *bf, RList *list, int min, int raw, ut64 
 	}
 	/* Some plugins return zero, fix it up */
 	if (!min) {
-		min = 4;
+		min = 1;
 	}
 	if (min < 0) {
 		return;
