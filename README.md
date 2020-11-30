@@ -1,3 +1,11 @@
+## **注意!**
+
+**跟标准radare2不兼容！不要尝试通过命令行去使用本radare2！**
+
+## **ATTENTION!**
+
+**Not compatible with standard Radare2! Don't try to use this Radare2 from command line!**
+
 ```
  ____  ___  ___  ___ ____  ___   ____
 |  _ \/   \|   \/   \  _ \/ _ \ (__  \
